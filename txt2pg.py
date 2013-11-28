@@ -90,6 +90,49 @@ def main(argv):
 		conn.commit()
 
 
+	# Preparing the analysis table
+	sql = "DROP TABLE IF EXISTS bom_analysis CASCADE"
+	print sql
+	cur.execute(sql)
+	conn.commit()
+
+	sql = """
+create table bom_analysis as
+select max(id) as id,
+(case when (ut_time in ('00','01','02','03','04','05','06','07','08','09','10','11'))
+then ut_date
+else to_char(to_date(ut_date,'YYYYMMDD')+1,'YYYYMMDD')
+end)
+as local_date,
+(ut_time::integer+7)%24 as local_obs_hr_nb,
+val
+from
+(
+select *,
+substring(fn,position('dni_' in fn)+4,8) as ut_date,
+substring(fn,position('dni_' in fn)+13,2) as ut_time
+ from bom_pixel 
+order by fn
+) t
+where val <> -999
+group by local_date,local_obs_hr_nb,val
+order by local_date,local_obs_hr_nb
+"""
+	print sql
+	cur.execute(sql)
+	conn.commit()
+
+	# Adding constraints and indices
+	sql = "ALTER TABLE bom_analysis ADD CONSTRAINT bom_analysis_pk PRIMARY KEY(id)"
+	print sql
+	cur.execute(sql)
+	conn.commit()
+
+	sql = "CREATE INDEX bom_analysis_date_idx ON bom_analysis USING btree (local_date)"
+	print sql
+	cur.execute(sql)
+	conn.commit()
+
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
