@@ -68,12 +68,12 @@ def main(argv):
 
 	cur = conn.cursor()
 
-	sql = "DROP TABLE IF EXISTS bom_pixel CASCADE"
-	print sql
-	cur.execute(sql)
-	conn.commit()
+	#sql = "DROP TABLE IF EXISTS bom_pixel CASCADE"
+	#print sql
+	#cur.execute(sql)
+	#conn.commit()
 
-	sql = "CREATE TABLE bom_pixel (id serial NOT NULL,x numeric(7,2),y numeric(7,2),fn text,val smallint,CONSTRAINT bom_pixel_pk PRIMARY KEY (id))"
+	sql = "CREATE TABLE IF NOT EXISTS bom_pixel (id serial NOT NULL,x numeric(7,2),y numeric(7,2),fn text,val smallint,CONSTRAINT bom_pixel_pk PRIMARY KEY (id))"
 	print sql
 	cur.execute(sql)
 	conn.commit()
@@ -88,7 +88,6 @@ def main(argv):
 		print sql
 		cur.execute(sql)
 		conn.commit()
-
 
 	# Preparing the analysis table
 	sql = "DROP TABLE IF EXISTS bom_analysis CASCADE"
